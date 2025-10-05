@@ -46,36 +46,54 @@ clouds:
     region_name: "RegionOne"
     interface: "public"
     identity_api_version: 3
+```
+
+
+
 🧩 2. Cài đặt môi trường Python
 Bước 1️⃣: Tạo môi trường ảo (venv)
+```
 python -m venv venv
+```
 
 Bước 2️⃣: Kích hoạt môi trường ảo
 
 Windows:
+```
 
 venv\Scripts\activate
+```
 
 
 Linux/macOS:
+```
 
 source venv/bin/activate
+```
 
 Bước 3️⃣: Cài đặt thư viện cần thiết
+```
 pip install -r requirements.txt
+```
 
 
 Nếu bạn dùng Flask async, cần thêm:
+```
 
 pip install "flask[async]"
+```
 
 🚀 3. Chạy ứng dụng Flask
 
+
 Chạy lệnh:
+```
 
 python app.py
-
+```
 
 Mặc định Flask chạy ở:
+```
 
 http://127.0.0.1:5000/
+```
