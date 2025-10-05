@@ -50,13 +50,14 @@ clouds:
 
 
 
-🧩 2. Cài đặt môi trường Python
-Bước 1️⃣: Tạo môi trường ảo (venv)
+## 🧩 2. Cài đặt môi trường Python
+
+### Bước 1️⃣: Tạo môi trường ảo (venv)
 ```
 python -m venv venv
 ```
 
-Bước 2️⃣: Kích hoạt môi trường ảo
+### Bước 2️⃣: Kích hoạt môi trường ảo
 
 Windows:
 ```
@@ -71,7 +72,7 @@ Linux/macOS:
 source venv/bin/activate
 ```
 
-Bước 3️⃣: Cài đặt thư viện cần thiết
+### Bước 3️⃣: Cài đặt thư viện cần thiết
 ```
 pip install -r requirements.txt
 ```
@@ -83,7 +84,7 @@ Nếu bạn dùng Flask async, cần thêm:
 pip install "flask[async]"
 ```
 
-🚀 3. Chạy ứng dụng Flask
+## 🚀 3. Chạy ứng dụng Flask
 
 
 Chạy lệnh:
