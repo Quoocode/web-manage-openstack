@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Networks</h3>
+
+<form method="post" action="/create-network" class="mb-4 border p-3 rounded shadow-sm">
+  <h5>Create New Network</h5>
+  <div class="row">
+    <div class="col-md-4 mb-2">
+      <input type="text" name="name" placeholder="Network Name" required class="form-control">
+    </div>
+    <div class="col-md-4 mb-2">
+      <input type="text" name="subnet_name" placeholder="Subnet Name" required class="form-control">
+    </div>
+    <div class="col-md-4 mb-2">
+      <input type="text" name="cidr" placeholder="CIDR (e.g., 192.168.10.0/24)" required class="form-control">
+    </div>
+  </div>
+  <button class="btn btn-primary">Create</button>
+</form>
+
+<table class="table table-bordered table-striped align-middle">
+  <thead class="table-light">
+    <tr><th>Name</th><th>ID</th><th>Subnets</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    {% for net in networks %}
+    <tr>
+      <td><b>{{ net.name }}</b></td>
+      <td><code>{{ net.id }}</code></td>
+      <td>
+        {% if net.subnet_details %}
+          <ul class="list-unstyled mb-0">
+            {% for s in net.subnet_details %}
+              <li><b>{{ s.name }}</b> ({{ s.cidr }})</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <span class="text-muted">No subnets</span>
+        {% endif %}
+      </td>
+      <td>
+        <a href="/delete-network/{{ net.id }}" class="btn btn-danger btn-sm">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

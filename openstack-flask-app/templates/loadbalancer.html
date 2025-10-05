@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Load Balancer</h3>
+<p>Chức năng quản lý Load Balancer đang được phát triển. 
+Khi hoàn thiện, trang này sẽ hiển thị danh sách LB hiện có, Pool và Listener tương ứng.</p>
+
+<form method="post" action="/create-lb" class="border p-3 rounded shadow-sm">
+  <h5>Create Load Balancer</h5>
+  <input name="name" placeholder="LB Name" class="form-control mb-2" required>
+  <input name="vip_network_id" placeholder="VIP Network ID" class="form-control mb-3" required>
+  <button class="btn btn-primary">Create</button>
+</form>
+{% endblock %}

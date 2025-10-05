@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Scale Instances</h3>
+
+<form method="post" class="border p-3 rounded shadow-sm">
+  <h5>Scale Up/Down</h5>
+  <input name="base_name" placeholder="Base Name (prefix)" class="form-control mb-2" required>
+  <input name="image" placeholder="Image ID" class="form-control mb-2" required>
+  <input name="flavor" placeholder="Flavor ID" class="form-control mb-2" required>
+  <input name="network_id" placeholder="Network ID" class="form-control mb-2" required>
+  <input name="key_name" placeholder="Keypair" class="form-control mb-2" required>
+  <input name="count" placeholder="Number of Instances" class="form-control mb-3" required>
+  <button class="btn btn-primary">Scale</button>
+</form>
+{% endblock %}

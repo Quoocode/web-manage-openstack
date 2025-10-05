@@ -1,0 +1,82 @@
+# =====================================
+# 🐍 Python / Flask Project .gitignore
+# =====================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+pip-wheel-metadata/
+*.egg-info/
+*.egg
+
+# Flask cache and instance folders
+instance/
+*.db
+*.sqlite3
+*.log
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.cache/
+
+# Editor / IDE folders
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# System files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =====================================
+# 🔒 OpenStack Configuration
+# =====================================
+# Never push credentials or tokens
+*.yaml
+*.yml
+!requirements.yml
+!environment.yml
+
+# =====================================
+# 📦 Build / Distribution
+# =====================================
+build/
+dist/
+.eggs/
+*.whl
+*.tar.gz
+
+# =====================================
+# 🚀 Misc
+# =====================================
+# Node or frontend (if used)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Local test scripts
+test_*.py
+temp/

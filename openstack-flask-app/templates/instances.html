@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Instances</h3>
+
+<form method="post" action="/create-instance" class="mb-4 border p-3 rounded shadow-sm">
+  <h5>Create Instance</h5>
+  <div class="row">
+    <div class="col-md-4 mb-2">
+      <input name="name" placeholder="Instance Name" class="form-control" required>
+    </div>
+    <div class="col-md-4 mb-2">
+      <select name="image" class="form-select" required>
+        <option value="" disabled selected>Select Image</option>
+        {% for img in images %}
+          <option value="{{ img.id }}">{{ img.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 mb-2">
+      <select name="flavor" class="form-select" required>
+        <option value="" disabled selected>Select Flavor</option>
+        {% for flv in flavors %}
+          <option value="{{ flv.id }}">{{ flv.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-2">
+      <select name="network_ids" multiple class="form-select" required>
+        {% for net in networks %}
+          <option value="{{ net.id }}">{{ net.name }}</option>
+        {% endfor %}
+      </select>
+      <small class="text-muted">Hold Ctrl (or Cmd) to select multiple networks</small>
+    </div>
+    <div class="col-md-3 mb-2">
+      <select name="security_group" class="form-select" required>
+        <option value="" disabled selected>Select Security Group</option>
+        {% for sg in security_groups %}
+          <option value="{{ sg.name }}">{{ sg.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 mb-2">
+      <select name="key_name" class="form-select" required>
+        <option value="" disabled selected>Select Keypair</option>
+        {% for key in keypairs %}
+          <option value="{{ key.name }}">{{ key.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <button class="btn btn-success">Create</button>
+</form>
+
+<table class="table table-bordered table-striped">
+  <thead class="table-light">
+    <tr><th>Name</th><th>Status</th><th>Networks</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    {% for s in instances %}
+    <tr>
+      <td>{{ s.name }}</td>
+      <td>
+        {% if s.status == 'ACTIVE' %}
+          <span class="badge bg-success">{{ s.status }}</span>
+        {% else %}
+          <span class="badge bg-secondary">{{ s.status }}</span>
+        {% endif %}
+      </td>
+      <td>
+        {% for net_name, addresses in s.addresses.items() %}
+          <div class="border p-2 mb-1 rounded bg-light">
+            <strong>{{ net_name }}</strong><br>
+            {% for addr in addresses %}
+              <span class="text-muted">IP:</span> {{ addr['addr'] }}
+              {% if addr['OS-EXT-IPS:type'] == 'floating' %}
+                <span class="badge bg-info text-dark">Floating</span>
+              {% endif %}
+              <br>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        <a href="/delete-instance/{{ s.id }}" class="btn btn-danger btn-sm">Delete</a>
+        <form method="post" action="/assign-floating-ip/{{ s.id }}" style="display:inline;">
+          <button class="btn btn-primary btn-sm">Assign Floating IP</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

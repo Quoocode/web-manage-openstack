@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Routers</h3>
+
+<form method="post" action="/create-router" class="mb-4 border p-3 rounded shadow-sm">
+  <h5>Create New Router</h5>
+  <div class="row">
+    <div class="col-md-6 mb-2">
+      <input type="text" name="name" placeholder="Router Name" required class="form-control">
+    </div>
+    <div class="col-md-6 mb-2">
+      <select name="external_network_id" class="form-select" required>
+        <option value="" disabled selected>Select External Network</option>
+        {% for net in external_networks %}
+          <option value="{{ net.id }}">{{ net.name }} ({{ net.id }})</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <button class="btn btn-primary">Create</button>
+</form>
+
+<table class="table table-bordered table-striped">
+  <thead class="table-light">
+    <tr><th>Name</th><th>ID</th><th>External Network</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    {% for r in routers %}
+    <tr>
+      <td>{{ r.name }}</td>
+      <td><code>{{ r.id }}</code></td>
+      <td>{{ r.external_gateway_info.network_id if r.external_gateway_info }}</td>
+      <td>
+        <a href="/delete-router/{{ r.id }}" class="btn btn-danger btn-sm">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
