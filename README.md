@@ -14,19 +14,15 @@
 Trước khi chạy, bạn cần cấu hình thông tin kết nối đến tài khoản **mycloud** trên OpenStack.
 
 ### 🔹 Bước 1: Đăng nhập vào Dashboard OpenStack
-> https://cloud-compute.uitiot.vn/
 
-### 🔹 Bước 2: Mở menu góc phải → chọn **“View Credentials”**
+### 🔹 Bước 2: Mở API Access → chọn **“View Credentials”**
 
 Bạn sẽ thấy các thông tin như:
-OS_AUTH_URL=
-OS_PROJECT_ID=
-OS_PROJECT_NAME=
-OS_USER_DOMAIN_NAME=
-OS_PROJECT_DOMAIN_NAME=
-OS_USERNAME=
-OS_PASSWORD=
-OS_REGION_NAME=
+User Name
+User ID
+Project Name
+Project ID
+Authentication URL
 
 ### 🔹 Bước 3: Tạo file `clouds.yaml`
 
