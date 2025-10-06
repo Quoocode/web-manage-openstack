@@ -126,24 +126,67 @@ def delete_instance(server_id):
 # ======================
 def assign_floating_ip(instance_id):
     conn = get_conn()
-    external_network = conn.network.find_network("ext-net")
 
-    # Tìm IP Floating chưa dùng
-    unused_ips = [ip for ip in conn.network.ips() if not ip.fixed_ip_address]
+    # 🔎 1. Tìm external network (router:external=True)
+    external_network = None
+    for net in conn.network.networks():
+        if getattr(net, "is_router_external", False):  # <-- đổi chỗ này
+            external_network = net
+            break
+    if not external_network:
+        raise Exception("❌ Không tìm thấy External Network nào")
+
+
+    # 🔎 2. Lấy tất cả port của instance
+    ports = list(conn.network.ports(device_id=instance_id))
+    if not ports:
+        raise Exception("❌ Không tìm thấy port nào của instance để gán Floating IP")
+
+    # 🔎 3. Chọn port nội bộ nào nối với router có gateway ra external
+    target_port = None
+    routers = list(conn.network.routers())
+    valid_internal_networks = set()
+
+    for r in routers:
+        if r.external_gateway_info:  # router có nối external
+            # lấy tất cả interface của router (các port nội bộ)
+            int_ports = conn.network.ports(device_id=r.id)
+            for p in int_ports:
+                for ip in p.fixed_ips:
+                    subnet = conn.network.get_subnet(ip['subnet_id'])
+                    valid_internal_networks.add(subnet.network_id)
+
+    # kiểm tra port của instance có thuộc mạng hợp lệ không
+    for port in ports:
+        if port.network_id in valid_internal_networks:
+            target_port = port
+            break
+
+    if not target_port:
+        raise Exception("❌ Không tìm thấy port nào của instance nối với Router ra ngoài")
+
+    # 🔎 4. Tìm Floating IP chưa dùng hoặc tạo mới
+    unused_ips = [
+        ip for ip in conn.network.ips(project_id=target_port.project_id)
+        if ip.status == "DOWN" and not ip.port_id
+    ]
+
     if unused_ips:
         floating_ip = unused_ips[0]
     else:
-        floating_ip = conn.network.create_ip(floating_network_id=external_network.id)
+        floating_ip = conn.network.create_ip(
+            floating_network_id=external_network.id,
+            project_id=target_port.project_id
+        )
 
-    # Lấy port của instance
-    ports = list(conn.network.ports(device_id=instance_id))
-    if not ports:
-        raise Exception("Không tìm thấy port nào của instance để gán Floating IP")
+    if not floating_ip:
+        raise Exception("❌ Tạo hoặc lấy Floating IP thất bại")
 
-    # Gán IP vào port
-    conn.network.update_ip(floating_ip, port_id=ports[0].id)
+    # 🔎 5. Gán IP vào port
+    conn.network.update_ip(floating_ip, port_id=target_port.id)
     print(f"✅ Gán Floating IP {floating_ip.floating_ip_address} cho instance {instance_id}")
     return floating_ip
+
 
 
 # ======================
