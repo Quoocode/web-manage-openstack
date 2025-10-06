@@ -15,17 +15,17 @@ def list_networks_with_subnets():
     conn = get_conn()
     networks = []
     for net in conn.network.networks():
-        subnets = []
-        for sid in net.subnet_ids:
+        subnet_details = []
+        for sid in getattr(net, "subnet_ids", []):
             try:
                 sub = conn.network.get_subnet(sid)
-                subnets.append(sub)
+                subnet_details.append(sub)
             except exceptions.NotFoundException:
                 continue
         networks.append({
             "id": net.id,
             "name": net.name,
-            "subnets": subnets
+            "subnet_details": subnet_details  
         })
     return networks
 
@@ -198,13 +198,3 @@ def scale_instances(base_name, image, flavor, network_id, key_name, count):
         name = f"{base_name}_{i+1}"
         create_instance(name, image, flavor, [network_id], key_name)
     return True
-
-# ======================
-# LOAD BALANCER
-# ======================
-def list_load_balancers():
-    conn = get_conn()
-    try:
-        return list(conn.load_balancer.load_balancers())
-    except Exception:
-        return []

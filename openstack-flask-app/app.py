@@ -152,13 +152,6 @@ async def scale():
     return render_template('scale.html', images=images, flavors=flavors, networks=networks, keypairs=keypairs)
 
 
-# ======================
-# LOAD BALANCER (ASYNC)
-# ======================
-@app.route('/loadbalancer')
-async def loadbalancer():
-    lbs = await asyncio.to_thread(osc.list_load_balancers)
-    return render_template('loadbalancer.html', loadbalancers=lbs)
 
 
 if __name__ == '__main__':
