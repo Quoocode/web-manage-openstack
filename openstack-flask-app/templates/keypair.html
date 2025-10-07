@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Keypairs</h3>
+
+<form method="post" action="/create-keypair" class="border p-3 rounded shadow-sm mb-4">
+  <h5>Create New Keypair</h5>
+  <input name="key_name" placeholder="Keypair Name" class="form-control mb-3" required>
+  <button class="btn btn-primary">Create</button>
+</form>
+
+{% if session.get('download_key_file') %}
+  <div class="alert alert-info mt-3">
+    <a href="{{ url_for('download_keypair') }}" class="btn btn-success">
+      ⬇️ Download {{ session.get('download_key_name') }}.pem
+    </a>
+  </div>
+{% endif %}
+
+
+<table class="table table-bordered table-striped">
+  <thead class="table-light">
+    <tr>
+      <th>Name</th>
+      <th>Fingerprint</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for key in keypairs %}
+    <tr>
+      <td>{{ key.name }}</td>
+      <td>{{ key.fingerprint }}</td>
+      <td>
+        <form method="post" action="/delete-keypair/{{ key.name }}" style="display:inline;">
+          <button class="btn btn-danger btn-sm" onclick="return confirm('Delete this keypair?')">
+            Delete
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

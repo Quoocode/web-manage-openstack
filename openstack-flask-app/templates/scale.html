@@ -1,15 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
-<h3>Scale Instances</h3>
+<h3 class="mb-4">Scale Instances</h3>
 
-<form method="post" class="border p-3 rounded shadow-sm">
-  <h5>Scale Up/Down</h5>
-  <input name="base_name" placeholder="Base Name (prefix)" class="form-control mb-2" required>
-  <input name="image" placeholder="Image ID" class="form-control mb-2" required>
-  <input name="flavor" placeholder="Flavor ID" class="form-control mb-2" required>
-  <input name="network_id" placeholder="Network ID" class="form-control mb-2" required>
-  <input name="key_name" placeholder="Keypair" class="form-control mb-2" required>
-  <input name="count" placeholder="Number of Instances" class="form-control mb-3" required>
-  <button class="btn btn-primary">Scale</button>
-</form>
+<div class="row">
+  <!-- 🟢 Scale Up -->
+  <div class="col-md-6">
+    <form method="post" action="/scale" class="border p-3 rounded shadow-sm bg-light mb-4">
+      <h5 class="text-success">Scale Up (Add Instances)</h5>
+      <input type="hidden" name="action" value="scale_up">
+      <input name="base_name" placeholder="Base Name (prefix)" class="form-control mb-2" required>
+      <input name="image" placeholder="Image ID" class="form-control mb-2" required>
+      <input name="flavor" placeholder="Flavor ID" class="form-control mb-2" required>
+      <input name="network_id" placeholder="Network ID" class="form-control mb-2" required>
+      <input name="key_name" placeholder="Keypair" class="form-control mb-2" required>
+      <input name="target_count" type="number" placeholder="Target Instance Count" class="form-control mb-3" required>
+      <button class="btn btn-success w-100">Scale Up</button>
+    </form>
+  </div>
+
+  <!-- 🔴 Scale Down -->
+  <div class="col-md-6">
+    <form method="post" action="/scale" class="border p-3 rounded shadow-sm bg-light mb-4">
+      <h5 class="text-danger">Scale Down (Remove Instances)</h5>
+      <input type="hidden" name="action" value="scale_down">
+      <input name="base_name" placeholder="Base Name (prefix)" class="form-control mb-2" required>
+      <input name="delete_count" type="number" placeholder="Number of Instances to Delete" class="form-control mb-3" required>
+      <button class="btn btn-danger w-100">Scale Down</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
+```

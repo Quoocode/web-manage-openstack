@@ -90,7 +90,7 @@ def list_keypairs():
     return list(conn.compute.keypairs())
 
 
-def create_instance(name, image, flavor, network_ids, key_name, security_group=None):
+def create_instance(name, image, flavor, network_ids, key_name, security_group="nhom07_secgr"):
     conn = get_conn()
     nics = [{"uuid": nid} for nid in network_ids]
 
@@ -110,7 +110,7 @@ def create_instance(name, image, flavor, network_ids, key_name, security_group=N
         flavor_id=flavor,
         networks=nics,
         key_name=key_name,
-        security_groups=[{"name": security_group}] if security_group else None,
+        security_groups=[{"name": security_group}],
         user_data=user_data_encoded
     )
     conn.compute.wait_for_server(server)
@@ -187,14 +187,82 @@ def assign_floating_ip(instance_id):
     print(f"✅ Gán Floating IP {floating_ip.floating_ip_address} cho instance {instance_id}")
     return floating_ip
 
+# ======================
+# KEYPAIR
+# ======================
+def list_keypairs():
+    conn = get_conn()
+    keypairs = conn.compute.keypairs()
+    result = []
+    for kp in keypairs:
+        result.append({
+            "name": kp.name,
+            "fingerprint": kp.fingerprint,
+            "public_key": kp.public_key
+        })
+    return result
+
+
+def create_keypair(name):
+    conn = get_conn()
+    keypair = conn.compute.create_keypair(name=name)
+    print(f"[+] Created Keypair: {keypair.name}")
+    return keypair
+
+def delete_keypair(name):
+    conn = get_conn()
+    conn.compute.delete_keypair(name, ignore_missing=True)
+    print(f"[-] Deleted keypair: {name}")
+
 
 
 # ======================
 # SCALE
 # ======================
-def scale_instances(base_name, image, flavor, network_id, key_name, count):
+def scale_instances(base_name, image, flavor, network_id, key_name, target_count):
     conn = get_conn()
-    for i in range(count):
-        name = f"{base_name}_{i+1}"
-        create_instance(name, image, flavor, [network_id], key_name)
+
+    # Lấy danh sách các instance có prefix giống base_name
+    existing_instances = [
+        s for s in conn.compute.servers(details=True)
+        if s.name.startswith(base_name)
+    ]
+    existing_instances.sort(key=lambda s: s.name)  # để đảm bảo thứ tự nhất quán
+    current_count = len(existing_instances)
+
+    print(f"[Scale] {base_name}: current={current_count}, target={target_count}")
+
+    if current_count < target_count:
+        # 🟢 Scale up: tạo thêm
+        for i in range(current_count, target_count):
+            name = f"{base_name}_{i+1}"
+            print(f"[+] Creating {name}")
+            create_instance(name, image, flavor, [network_id], key_name)
+    elif current_count > target_count:
+        # 🔴 Scale down: xóa bớt
+        to_delete = existing_instances[target_count:]
+        for s in to_delete:
+            print(f"[-] Deleting {s.name}")
+            conn.compute.delete_server(s.id, ignore_missing=True)
+    else:
+        print("[=] No scaling needed (already at desired count).")
+
+    return True
+
+def delete_instances(base_name, delete_count):
+    conn = get_conn()
+    instances = [
+        s for s in conn.compute.servers(details=True)
+        if s.name.startswith(base_name)
+    ]
+    instances.sort(key=lambda s: s.name, reverse=True)
+
+    if not instances:
+        raise Exception(f"No instances found with prefix {base_name}")
+
+    to_delete = instances[:delete_count]
+    for s in to_delete:
+        print(f"[-] Deleting {s.name}")
+        conn.compute.delete_server(s.id, ignore_missing=True)
+
     return True
