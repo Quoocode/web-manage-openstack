@@ -1,5 +1,6 @@
 from openstack import connection, exceptions
 import base64
+import os
 
 def get_conn():
     return connection.Connection(cloud='mycloud')
@@ -219,50 +220,60 @@ def delete_keypair(name):
 # ======================
 # SCALE
 # ======================
-def scale_instances(base_name, image, flavor, network_id, key_name, target_count):
+def scale_up_instances(base_name, image, flavor, network_id, key_name, target_count):
     conn = get_conn()
 
-    # Lấy danh sách các instance có prefix giống base_name
-    existing_instances = [
-        s for s in conn.compute.servers(details=True)
-        if s.name.startswith(base_name)
-    ]
-    existing_instances.sort(key=lambda s: s.name)  # để đảm bảo thứ tự nhất quán
-    current_count = len(existing_instances)
+    # Đếm tổng số máy hiện có trong hệ thống
+    all_instances = list(conn.compute.servers(details=True))
+    current_count = len(all_instances)
 
-    print(f"[Scale] {base_name}: current={current_count}, target={target_count}")
+    print(f"[Scale-Up] Current instances: {current_count}, Target: {target_count}")
 
-    if current_count < target_count:
-        # 🟢 Scale up: tạo thêm
-        for i in range(current_count, target_count):
-            name = f"{base_name}_{i+1}"
-            print(f"[+] Creating {name}")
-            create_instance(name, image, flavor, [network_id], key_name)
-    elif current_count > target_count:
-        # 🔴 Scale down: xóa bớt
-        to_delete = existing_instances[target_count:]
-        for s in to_delete:
-            print(f"[-] Deleting {s.name}")
-            conn.compute.delete_server(s.id, ignore_missing=True)
-    else:
-        print("[=] No scaling needed (already at desired count).")
+    # Nếu đã đạt hoặc vượt target → không cần tạo thêm
+    if current_count >= target_count:
+        print(f"[=] No scale-up needed (already have {current_count} instances).")
+        return True
 
+    # Số máy cần tạo thêm
+    to_create = target_count - current_count
+    print(f"[+] Need to create {to_create} new instance(s).")
+
+    for i in range(to_create):
+        name = f"{base_name}_{current_count + i + 1}"
+        print(f"[+] Creating instance: {name}")
+        create_instance(name, image, flavor, [network_id], key_name)
+
+    print(f"✅ Successfully scaled up from {current_count} → {target_count} instances.")
     return True
 
-def delete_instances(base_name, delete_count):
+
+def scale_down_instances(base_name, target_count):
     conn = get_conn()
-    instances = [
-        s for s in conn.compute.servers(details=True)
-        if s.name.startswith(base_name)
-    ]
-    instances.sort(key=lambda s: s.name, reverse=True)
 
-    if not instances:
-        raise Exception(f"No instances found with prefix {base_name}")
+    # Lấy toàn bộ instance trong hệ thống
+    instances = list(conn.compute.servers(details=True))
+    current_count = len(instances)
 
-    to_delete = instances[:delete_count]
+    print(f"[Scale-Down] Current instances: {current_count}, Target: {target_count}")
+
+    # Nếu số lượng hiện tại đã <= target_count thì không cần giảm
+    if current_count <= target_count:
+        print(f"[=] No scale-down needed (already have {current_count} instances).")
+        return True
+
+    # Tính số máy cần xóa
+    to_delete_count = current_count - target_count
+    print(f"[-] Need to delete {to_delete_count} instance(s).")
+
+    # Sắp xếp theo thời gian tạo (mới nhất trước)
+    instances.sort(key=lambda s: s.created_at, reverse=True)
+
+    # Chọn ra các máy mới nhất để xóa
+    to_delete = instances[:to_delete_count]
+
     for s in to_delete:
         print(f"[-] Deleting {s.name}")
         conn.compute.delete_server(s.id, ignore_missing=True)
 
+    print(f"✅ Successfully scaled down from {current_count} → {target_count} instances.")
     return True

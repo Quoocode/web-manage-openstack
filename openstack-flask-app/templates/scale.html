@@ -23,8 +23,7 @@
     <form method="post" action="/scale" class="border p-3 rounded shadow-sm bg-light mb-4">
       <h5 class="text-danger">Scale Down (Remove Instances)</h5>
       <input type="hidden" name="action" value="scale_down">
-      <input name="base_name" placeholder="Base Name (prefix)" class="form-control mb-2" required>
-      <input name="delete_count" type="number" placeholder="Number of Instances to Delete" class="form-control mb-3" required>
+      <input name="target_count" type="number" placeholder="Target Instance Count" class="form-control mb-3" required>
       <button class="btn btn-danger w-100">Scale Down</button>
     </form>
   </div>

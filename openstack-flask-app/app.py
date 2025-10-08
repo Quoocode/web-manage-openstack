@@ -141,27 +141,27 @@ async def scale():
             flavor = request.form['flavor'].strip()
             network_id = request.form['network_id'].strip()
             key_name = request.form['key_name'].strip()
-            count = int(request.form['target_count'])
+            target_count = int(request.form['target_count'])
 
             try:
                 await asyncio.to_thread(
-                    osc.scale_instances,
-                    base_name, image, flavor, network_id, key_name, count
+                    osc.scale_up_instances,
+                    base_name, image, flavor, network_id, key_name, target_count
                 )
-                flash(f"✅ Scaled UP {base_name} to {count} instance(s) successfully!", "success")
+                flash(f"✅ Scaled UP to {target_count} instance(s) successfully!", "success")
             except Exception as e:
                 flash(f"⚠️ Failed to scale up: {str(e)}", "danger")
 
         elif action == 'scale_down':
-            base_name = request.form['base_name'].strip()
-            delete_count = int(request.form['delete_count'])
+            target_count = int(request.form['target_count'])  # chỉ cần target_count, không cần base_name
 
             try:
                 await asyncio.to_thread(
-                    osc.delete_instances,  # function bạn sẽ thêm trong openstack_client.py
-                    base_name, delete_count
+                    osc.scale_down_instances,
+                    "",  # giữ placeholder cho base_name để tương thích
+                    target_count
                 )
-                flash(f"🗑️ Deleted {delete_count} instance(s) for prefix {base_name}.", "warning")
+                flash(f"🗑️ Scaled DOWN to {target_count} instance(s).", "warning")
             except Exception as e:
                 flash(f"⚠️ Failed to scale down: {str(e)}", "danger")
 
@@ -180,6 +180,7 @@ async def scale():
         networks=networks,
         keypairs=keypairs
     )
+
 # ======================
 # KEYPAIR MANAGEMENT (ASYNC)
 # ======================
